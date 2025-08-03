@@ -99,3 +99,4 @@ if st.button("📤 Consultar IP y enviar por WhatsApp"):
                     st.success("📬 Resultado enviado a tu WhatsApp (sandbox)")
             else:
                 st.error("❌ No se pudo obtener los datos de esa IP.")
+

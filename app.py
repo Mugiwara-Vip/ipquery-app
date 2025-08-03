@@ -69,7 +69,9 @@ st.set_page_config(page_title="GeoIP Tracker", page_icon="🌍")
 st.title("🌐 IP + 📍 Geolocalización Real + WhatsApp")
 
 # Obtener ubicación GPS del navegador
-coords = streamlit_js_eval(get_geolocation, key="get_location")
+from streamlit_js_eval import streamlit_js_eval, get_geolocation
+
+coords = streamlit_js_eval(label="Obtener ubicación", value=get_geolocation(), key="get_location")
 
 if coords and coords.get("coords"):
     lat = coords["coords"]["latitude"]
@@ -78,6 +80,7 @@ if coords and coords.get("coords"):
     st.map(pd.DataFrame({'lat': [lat], 'lon': [lon]}))
 else:
     st.warning("🔒 Permite la ubicación en el navegador para obtener coordenadas reales.")
+
 
 # Obtener IP del usuario
 ip_actual = obtener_mi_ip()
@@ -105,3 +108,4 @@ if st.button("📤 Consultar IP + Enviar por WhatsApp"):
             enviado = enviar_whatsapp(datos)
             if enviado:
                 st.success("✅ Información enviada por WhatsApp.")
+

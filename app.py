@@ -3,6 +3,8 @@ import requests
 import yaml
 import re
 from twilio.rest import Client
+from streamlit_js_eval import streamlit_js_eval, get_geolocation
+import pandas as pd
 
 # ------------------ TWILIO SANDBOX ------------------
 TWILIO_SID = "AC665d269ec686f198790de0fae15ac484"
@@ -42,12 +44,12 @@ def enviar_whatsapp(datos):
     try:
         client = Client(TWILIO_SID, TWILIO_AUTH_TOKEN)
         mensaje = f"""
-📊 Consulta de IP
+📍 Ubicación GPS:
+Latitude: {datos['lat']}, Longitude: {datos['lon']}
 
 🌐 IP: {datos.get('ip')}
 📍 País: {datos.get('location', {}).get('country')}
 🏙 Ciudad: {datos.get('location', {}).get('city')}
-🕒 Zona Horaria: {datos.get('location', {}).get('timezone')}
 💻 ISP: {datos.get('isp', {}).get('isp')}
 🛡 Riesgo: {datos.get('risk', {}).get('risk_score')}
         """
@@ -63,40 +65,43 @@ def enviar_whatsapp(datos):
 
 # ------------------ UI STREAMLIT ------------------
 
-st.set_page_config(page_title="IP Info App", page_icon="🌍")
-st.title("🔍 IPQuery – Enviar resultados a WhatsApp")
+st.set_page_config(page_title="GeoIP Tracker", page_icon="🌍")
+st.title("🌐 IP + 📍 Geolocalización Real + WhatsApp")
 
-if st.button("🌐 Detectar mi IP"):
-    ip_auto = obtener_mi_ip()
-    if ip_auto:
-        st.success(f"Tu IP detectada es: {ip_auto}")
-        st.session_state['ip_actual'] = ip_auto
-    else:
-        st.error("❌ No se pudo detectar tu IP automáticamente.")
+# Obtener ubicación GPS del navegador
+coords = streamlit_js_eval(get_geolocation, key="get_location")
 
-ip = st.text_input("🔢 Introduce una IP", st.session_state.get('ip_actual', '1.1.1.1'))
+if coords and coords.get("coords"):
+    lat = coords["coords"]["latitude"]
+    lon = coords["coords"]["longitude"]
+    st.success("📍 Ubicación GPS obtenida exitosamente")
+    st.map(pd.DataFrame({'lat': [lat], 'lon': [lon]}))
+else:
+    st.warning("🔒 Permite la ubicación en el navegador para obtener coordenadas reales.")
 
-if st.button("📤 Consultar IP y enviar por WhatsApp"):
+# Obtener IP del usuario
+ip_actual = obtener_mi_ip()
+ip = st.text_input("🔢 Tu IP detectada (editable):", ip_actual or "1.1.1.1")
+
+if st.button("📤 Consultar IP + Enviar por WhatsApp"):
     if not es_ip_valida(ip):
-        st.error("❌ La IP ingresada no es válida.")
+        st.error("❌ IP inválida.")
     else:
-        with st.spinner("Consultando IPQuery..."):
-            datos = consultar_datos_ip(ip)
-            if datos:
-                st.success("✅ Consulta exitosa")
+        datos = consultar_datos_ip(ip)
+        if datos:
+            st.subheader("📍 IPQuery Ubicación")
+            st.write(datos.get("location"))
 
-                st.subheader("📍 Ubicación")
-                st.write(datos.get("location"))
+            st.subheader("🌐 ISP")
+            st.write(datos.get("isp"))
 
-                st.subheader("🌐 ISP")
-                st.write(datos.get("isp"))
+            st.subheader("🔐 Riesgo")
+            st.write(datos.get("risk"))
 
-                st.subheader("🔐 Riesgo")
-                st.write(datos.get("risk"))
+            if coords and coords.get("coords"):
+                datos['lat'] = lat
+                datos['lon'] = lon
 
-                enviado = enviar_whatsapp(datos)
-                if enviado:
-                    st.success("📬 Resultado enviado a tu WhatsApp (sandbox)")
-            else:
-                st.error("❌ No se pudo obtener los datos de esa IP.")
-
+            enviado = enviar_whatsapp(datos)
+            if enviado:
+                st.success("✅ Información enviada por WhatsApp.")

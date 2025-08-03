@@ -41,27 +41,19 @@ def consultar_datos_ip(ip):
     return None
 
 def enviar_whatsapp(datos):
-    try:
-        client = Client(TWILIO_SID, TWILIO_AUTH_TOKEN)
-        mensaje = f"""
+   mapa = f"https://www.google.com/maps?q={datos['lat']},{datos['lon']}"
+
+mensaje = f"""
 📍 Ubicación GPS:
-Latitude: {datos['lat']}, Longitude: {datos['lon']}
+Lat: {datos['lat']}, Lon: {datos['lon']}
 
 🌐 IP: {datos.get('ip')}
-📍 País: {datos.get('location', {}).get('country')}
 🏙 Ciudad: {datos.get('location', {}).get('city')}
+🌍 País: {datos.get('location', {}).get('country')}
 💻 ISP: {datos.get('isp', {}).get('isp')}
-🛡 Riesgo: {datos.get('risk', {}).get('risk_score')}
-        """
-        client.messages.create(
-            body=mensaje.strip(),
-            from_=TWILIO_WHATSAPP_NUMBER,
-            to=TU_NUMERO_VERIFICADO
-        )
-        return True
-    except Exception as e:
-        st.error(f"❌ Error al enviar WhatsApp: {e}")
-        return False
+🗺️ Mapa: {mapa}
+"""
+
 
 # ------------------ UI STREAMLIT ------------------
 
@@ -108,4 +100,5 @@ if st.button("📤 Consultar IP + Enviar por WhatsApp"):
             enviado = enviar_whatsapp(datos)
             if enviado:
                 st.success("✅ Información enviada por WhatsApp.")
+
 

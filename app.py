@@ -3,7 +3,6 @@ import requests
 import yaml
 
 st.set_page_config(page_title="IP Info App", page_icon="🌍")
-st.success("✅ La app se cargó correctamente")
 
 st.title("🔍 IPQuery – Enriquecimiento de IP")
 ip = st.text_input("Introduce una IP para consultar", "1.1.1.1")
@@ -27,3 +26,4 @@ if st.button("Consultar IP"):
                 st.error("No se pudo consultar la IP.")
         except Exception as e:
             st.error(f"Error al consultar la API: {e}")
+

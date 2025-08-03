@@ -7,10 +7,10 @@ from twilio.rest import Client
 from streamlit_js_eval import streamlit_js_eval, get_geolocation
 
 # ------------------ TWILIO SANDBOX CONFIG ------------------
-TWILIO_SID = "AC665d269ec686f198790de0fae15ac484"
-TWILIO_AUTH_TOKEN = "4f017448a69c340bc4ff6e221b06a2fa"
-TWILIO_WHATSAPP_NUMBER = "whatsapp:+14155238886"  # Número fijo del sandbox
-TU_NUMERO_VERIFICADO = "whatsapp:+51986420272"   # Tu número de celular, con prefijo internacional
+TWILIO_SID = ""
+TWILIO_AUTH_TOKEN = ""
+TWILIO_WHATSAPP_NUMBER = "whatsapp:+"  # Número fijo del sandbox
+TU_NUMERO_VERIFICADO = "whatsapp:+"   # Tu número de celular, con prefijo internacional
 
 # ------------------ FUNCIONES AUXILIARES ------------------
 
@@ -117,3 +117,4 @@ if st.button("📤 Consultar y enviar por WhatsApp"):
 
                 if enviar_whatsapp(datos):
                     st.success("✅ Información enviada a WhatsApp correctamente.")
+
